@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AES Benchmarking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        h1, h2, h3, h4 {
+            text-align: center;
+        }
+        form {
+            margin: 20px 0;
+            text-align: center;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        input[type="submit"]:hover {
+            background-color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        table th {
+            background-color: #f4f4f9;
+        }
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+        }
+        .graph-title {
+            text-align: center;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .report-section {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>AES Benchmarking</h1>
+    </header>
+    
+    <div class="container">
+        {% if not results %}
+            <!-- Input Form -->
+            <form method="POST">
+                <label for="input_data">Enter your input (string):</label>
+                <input type="text" id="input_data" name="input_data" placeholder="Enter your input here..." required>
+                
+                <label for="iterations">Number of iterations:</label>
+                <input type="number" id="iterations" name="iterations" placeholder="Enter number of iterations" required min="1" step="1">
+                
+                <input type="submit" value="Start Benchmarking">
+            </form>
+        {% else %}
+            <!-- Results Section -->
+            <h2>Benchmark Results</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>128-bit Key</th>
+                        <th>192-bit Key</th>
+                        <th>256-bit Key</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Average Encryption Time</td>
+                        <td>{{ "%.2f" | format(results[0].avg_enc_time * 1000) }} µs</td>
+                        <td>{{ "%.2f" | format(results[1].avg_enc_time * 1000) }} µs</td>
+                        <td>{{ "%.2f" | format(results[2].avg_enc_time * 1000) }} µs</td>
+                    </tr>
+                    <tr>
+                        <td>Average Decryption Time</td>
+                        <td>{{ "%.2f" | format(results[0].avg_dec_time * 1000) }} µs</td>
+                        <td>{{ "%.2f" | format(results[1].avg_dec_time * 1000) }} µs</td>
+                        <td>{{ "%.2f" | format(results[2].avg_dec_time * 1000) }} µs</td>
+                    </tr>
+                    <tr>
+                        <td>Encryption Throughput</td>
+                        <td>{{ "%.2f" | format(results[0].enc_throughput) }} ops/sec</td>
+                        <td>{{ "%.2f" | format(results[1].enc_throughput) }} ops/sec</td>
+                        <td>{{ "%.2f" | format(results[2].enc_throughput) }} ops/sec</td>
+                    </tr>
+                    <tr>
+                        <td>Decryption Throughput</td>
+                        <td>{{ "%.2f" | format(results[0].dec_throughput) }} ops/sec</td>
+                        <td>{{ "%.2f" | format(results[1].dec_throughput) }} ops/sec</td>
+                        <td>{{ "%.2f" | format(results[2].dec_throughput) }} ops/sec</td>
+                    </tr>
+                    <tr>
+                        <td>Memory Usage (Enc/Dec)</td>
+                        <td>{{ "%.2f" | format(results[0].avg_enc_memory / 1024) }} KB</td>
+                        <td>{{ "%.2f" | format(results[1].avg_enc_memory / 1024) }} KB</td>
+                        <td>{{ "%.2f" | format(results[2].avg_enc_memory / 1024) }} KB</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h2 class="graph-title">Benchmark Graph</h2>
+            <p class="graph-title">Graph based on input size: <span style="text-transform: uppercase;">{{ results[0].input_size }} BYTES</span></p>
+            <img src="{{ url_for('static', filename='aes_benchmark.png') }}" alt="AES Benchmark Graph">
+            
+            <!-- AES Security Analysis Report -->
+            <div class="report-section">
+                <h3>AES SECURITY ANALYSIS REPORT</h3>
+                
+                <h4>2. Security Implications</h4>
+                
+                <p>
+                    <strong>(i) Encryption Time:</strong><br>
+                    - <strong>why it matters:</strong><br>
+                    Faster encryption times allow for real-time processing in systems requiring high performance, like online transactions.<br>
+                    Longer encryption times may offer better security but reduce throughput.<br>
+                    <strong>analysis across key sizes:</strong><br>
+                    - 128-BIT: Fastest encryption time, making it suitable for high-performance applications. Adequate security for most current applications but weaker against future cryptographic threats, such as quantum attacks.<br>
+                    - 192-BIT: Moderate encryption time, balancing speed and improved security. Provides additional protection against brute-force attacks compared to 128-bit.<br>
+                    - 256-BIT: Slowest encryption time, offering the highest level of security but potentially limiting for systems requiring high-speed operations.
+                </p>
+
+                <p>
+                    <strong>(ii) Decryption Time:</strong><br>
+                    - <strong>why it matters:</strong><br>
+                    Decryption time is critical in systems where rapid data retrieval is essential, such as encrypted databases or communication systems.<br>
+                    <strong>analysis across key sizes:</strong><br>
+                    - 128-BIT: Fastest decryption time, suitable for real-time systems. However, its lower security may not suffice for highly sensitive data.<br>
+                    - 192-BIT: Balanced decryption time, offering stronger protection with only a slight performance trade-off.<br>
+                    - 256-BIT: Slowest decryption time, which may introduce delays in systems with high data decryption demands but ensures the highest security level.
+                </p>
+
+                <p>
+                    <strong>(iii) Throughput:</strong><br>
+                    - <strong>why it matters:</strong><br>
+                    High throughput is essential for systems processing large volumes of encrypted data, such as VPNs or secure file transfers.<br>
+                    <strong>analysis across key sizes:</strong><br>
+                    - 128-BIT: Highest throughput, making it ideal for high-performance needs but potentially less secure.<br>
+                    - 192-BIT: Moderate throughput, balancing performance and security.<br>
+                    - 256-BIT: Lowest throughput, suitable for applications prioritizing security over speed.
+                </p>
+
+                <p>
+                    <strong>(iv) Memory Usage:</strong><br>
+                    - <strong>why it matters:</strong><br>
+                    Lower memory usage is beneficial for devices with constrained resources, such as IoT devices, while higher memory usage may limit application in such environments.<br>
+                    <strong>analysis across key sizes:</strong><br>
+                    - 128-BIT: Lowest memory usage, making it highly efficient for lightweight devices but less secure.<br>
+                    - 192-BIT: Moderate memory usage, offering a good trade-off between security and resource efficiency.<br>
+                    - 256-BIT: Highest memory usage, requiring more system resources but delivering maximum security.
+                </p>
+
+                <h4>3. Recommendations</h4>
+                <p>
+                    <strong>(i) 128-bit Keys:</strong><br>
+                    - <strong>when to use:</strong> Suitable for high-performance applications where speed is a priority and data sensitivity is moderate (e.g., streaming services, low-security communication).<br>
+                    - <strong>risks:</strong> Vulnerable to brute-force attacks by future computational advancements, including quantum threats.
+                </p>
+
+                <p>
+                    <strong>(ii) 192-bit Keys:</strong><br>
+                    - <strong>when to use:</strong> Recommended for general-purpose applications requiring strong security without significant performance trade-offs (e.g., financial transactions, enterprise applications).<br>
+                    - <strong>advantages:</strong> Balanced encryption and decryption times with improved security over 128-bit keys.<br>
+                    - <strong>risks:</strong> Slightly higher memory usage and slower throughput compared to 128-bit.
+                </p>
+
+                <p>
+                    <strong>(iii) 256-bit Keys:</strong><br>
+                    - <strong>when to use:</strong> Ideal for ultra-sensitive applications, such as governmental communications, financial institutions, and high-value data storage.<br>
+                    - <strong>advantages:</strong> Maximum security against brute-force and future quantum attacks.<br>
+                    - <strong>risks:</strong> Slower encryption and decryption times, lower throughput, and higher memory requirements.
+                </p>
+
+                <h4>4. Graphical Analysis</h4>
+                <ul>
+                    <li><strong>Graph 1:</strong> Encryption and Decryption Times - A bar chart showing how encryption and decryption times increase with key size.</li>
+                    <li><strong>Graph 2:</strong> Throughput - A line graph illustrating the decreasing throughput as key size increases.</li>
+                    <li><strong>Graph 3:</strong> Memory Usage - A stacked bar chart comparing memory usage for encryption and decryption across key sizes.</li>
+                </ul>
+
+                <h4>5. Decision-Making Guide</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Scenario</th>
+                            <th>Recommended Key Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>High performance, low sensitivity</td>
+                            <td>128-bit</td>
+                        </tr>
+                        <tr>
+                            <td>Balanced performance and security</td>
+                            <td>192-bit</td>
+                        </tr>
+                        <tr>
+                            <td>Maximum security for sensitive data</td>
+                            <td>256-bit</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
