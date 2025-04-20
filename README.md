@@ -1,0 +1,1 @@
+This project focuses on benchmarking AES cryptographic algorithms to help identify the optimal key configurations. It evaluates various AES keys based on encryption and decryption times, throughput, and memory usage. The results provide insights into the best AES keys to use for different scenarios.
